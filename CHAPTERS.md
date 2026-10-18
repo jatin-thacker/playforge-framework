@@ -194,3 +194,32 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch22 — Step Logging, Attachments, and Data/Date Helpers
+
+### What arrived
+- `src/lib/logger.js`: Wraps `test.step` for clear hierarchy in test reports and `testInfo.attach` for attaching structured debug payloads/metadata.
+- `src/lib/data.js`: Test data generators for unique emails (`generateCustomerEmail`), phone numbers (`generatePhoneNumber`), order IDs (`generateOrderNumber`), and reproducible seeded randoms (`createSeededRandom`).
+- `src/lib/dates.js`: Date math and formatting helpers (`formatIsoDate`, `addDays`, `getFutureDate`, `formatDisplayDate`).
+- `tests/ui/fulfilment.spec.js`: Refactored to group wizard phases using `step(...)`, attach generated customer details with `attach(...)`, and compute dates dynamically.
+
+### Run
+- Repeat updated fulfilment spec (`npx playwright test tests/ui/fulfilment.spec.js --repeat-each=3 --reporter=list`):
+  `3 passed (5.0s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `10 passed (16.2s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `10 passed (15.8s)`
+
+### Lesson notes for Opus
+- **`test.step` nesting:** Wrapping logical segments of long UI flows (e.g. login, navigation, filling forms) in `test.step('...', async () => { ... })` dramatically improves report readability per [Playwright Steps](https://playwright.dev/docs/api/class-test#test-step). When an assertion fails inside a step, the report immediately identifies which business phase broke rather than showing an isolated line number.
+- **Artifact attachment via `testInfo.attach`:** Rather than cluttering standard console logs with test data, attaching JSON or text payloads directly to `testInfo` ensures that debugging context is saved alongside traces and screenshots in CI test reports.
+- **Lightweight data helpers vs. heavy libraries:** For standard QA test suites, implementing small deterministic utilities for dates and emails avoids pulling in multi-megabyte dependencies (like `faker` or `moment`) that bloat CI installation times.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
