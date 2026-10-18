@@ -223,3 +223,40 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch23 — API Client Layer and Hybrid UI/API Workflows
+
+### What arrived
+- `src/api/ApiClient.js`: Base HTTP client wrapping Playwright's `APIRequestContext` and ensuring static mock and seed parameters are automatically attached.
+- `src/api/HealthApi.js`: API client for `/api/health`.
+- `src/api/ProductsApi.js`: API client for `/api/products` (paged catalog).
+- `src/api/OrdersApi.js`: API client for `/api/orders` (paged orders list and single order lookup).
+- `src/api/index.js`: Barrel export for all API clients.
+- `src/fixtures/index.js`: Registered `healthApi`, `productsApi`, and `ordersApi` fixtures.
+- `tests/api/products.spec.js`: API spec asserting status (200), schema/shape (total, items array), and values (`MRD-1001`, `Aurora Pour-Over Kettle`).
+- `tests/api/orders.spec.js`: API spec asserting status (200), schema/shape, and values (`ORD-4100`, `Meera Pillai`).
+- `tests/api/health.spec.js`: Updated to use `healthApi` fixture.
+- `tests/e2e/orders-hybrid.spec.js`: Hybrid test fetching order records via `ordersApi` and asserting that the record renders accurately in the UI orders table.
+
+### Run
+- Repeat new specs (`--repeat-each=3 --reporter=list`):
+  - `tests/api/products.spec.js`: `3 passed (1.7s)`
+  - `tests/api/orders.spec.js`: `3 passed (1.9s)`
+  - `tests/e2e/orders-hybrid.spec.js`: `3 passed (5.5s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `13 passed (19.2s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `13 passed (19.0s)`
+
+### Lesson notes for Opus
+- **API Request Context encapsulation:** Creating typed/structured domain clients (like `OrdersApi` and `ProductsApi`) on top of Playwright's `APIRequestContext` insulates test suites from endpoint path changes and query-string boilerplate per [Playwright API testing](https://playwright.dev/docs/api-testing).
+- **Three-tier API assertions (Status, Shape, Value):** Quality test suites avoid asserting only `response.ok()`. Checking HTTP status, payload structural contract (`toHaveProperty('items')`), and specific known values ensures resilience against regression without brittle full-payload deep-equality traps.
+- **The Hybrid Pattern:** In end-to-end testing, setting up preconditions or fetching target entities via API calls before executing browser actions speeds up execution by orders of magnitude compared to navigating through 5 preparatory UI screens.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
