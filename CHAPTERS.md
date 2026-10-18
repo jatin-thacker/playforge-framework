@@ -260,3 +260,33 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch24 — Network Interception: Mocked Error States and HAR Replay
+
+### What arrived
+- `src/pages/OrdersPage.js`: Added `errorMessage` (`orders-error`), `emptyMessage` (`orders-empty`), and `loadingIndicator` (`orders-loading`) locators.
+- `test-data/orders.har`: Committed HAR archive capturing orders API response with embedded body payload.
+- `tests/ui/mock-error.spec.js`: Tests error handling when `/api/orders*` returns 500 (verifies `orders-error` alert banner and absence of table) and mocked empty list response (verifies `orders-empty`).
+- `tests/ui/har-replay.spec.js`: Replays orders network responses strictly from `test-data/orders.har` using `page.routeFromHAR`.
+
+### Run
+- Repeat new specs (`npx playwright test tests/ui/mock-error.spec.js tests/ui/har-replay.spec.js --repeat-each=3 --reporter=list`):
+  `9 passed (13.7s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `16 passed (10.0s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `16 passed (25.8s)`
+
+### Lesson notes for Opus
+- **`page.route` response mocking vs. network abort:** In web-first architectures, testing how UI components render when APIs fail is essential. Intercepting with `page.route` enables testing both HTTP errors (`status: 500`) and simulated connection drops (`route.abort()`) without modifying server state or needing unreliable flake injection per [Playwright Network Mocking](https://playwright.dev/docs/mock#mock-api-requests).
+- **`routeFromHAR` embedded content:** When generating HAR recordings in Playwright, by default response payloads can be saved to separate binary chunk files (`.bin`). Using `updateContent: 'embed'` ensures all response payloads are base64-encoded directly inside the JSON structure of `orders.har`, making the fixture self-contained and cleanly version-controlled in git without stray binary artifacts per [Playwright Replaying from HAR](https://playwright.dev/docs/mock#replaying-from-har).
+- **Fallback routing with `notFound: 'fallback'`:** Setting `notFound: 'fallback'` on `routeFromHAR` guarantees that assets outside the targeted API pattern (e.g. static scripts, CSS, HTML) continue to resolve against the real application while ensuring that the data endpoints are strictly served from the offline archive.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
+

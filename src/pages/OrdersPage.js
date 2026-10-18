@@ -23,6 +23,9 @@ export class OrdersPage {
     this.pagePrev = page.getByTestId('page-prev');
     this.pageNext = page.getByTestId('page-next');
     this.pageIndicator = page.getByTestId('page-indicator');
+    this.errorMessage = page.getByTestId('orders-error');
+    this.emptyMessage = page.getByTestId('orders-empty');
+    this.loadingIndicator = page.getByTestId('orders-loading');
   }
 
   /**
