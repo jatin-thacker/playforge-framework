@@ -123,3 +123,37 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch20 — Complete Page Object Layer and Reusable Components
+
+### What arrived
+- `src/components/TableComponent.js`: Reusable component for HTML data tables (row lookups, cells, header queries).
+- `src/components/ModalComponent.js`: Reusable component for modal dialogs (open, save, cancel, field locators).
+- `src/components/DatePickerComponent.js`: Reusable component for date picker panels and date inputs.
+- `src/pages/OrdersPage.js`: Full page object for orders management, wrapping table and edit modal components.
+- `src/pages/CatalogPage.js`: Full page object for catalog search, category filtering, and cart operations.
+- `src/pages/FulfilmentPage.js`: Full page object for order fulfilment multi-step wizard, wrapping date picker component.
+- `src/fixtures/index.js`: Registered `ordersPage`, `catalogPage`, and `fulfilmentPage` fixtures.
+- `tests/ui/catalog.spec.js` and `tests/e2e/orders-flow.spec.js`: Refactored to use `catalogPage` and `ordersPage` fixtures.
+- `tests/ui/fulfilment.spec.js`: New spec verifying fulfilment wizard step 1 and step indicator.
+
+### Run
+- Repeat new fulfilment spec (`npx playwright test tests/ui/fulfilment.spec.js --repeat-each=3 --reporter=list`):
+  `3 passed (3.6s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `6 passed (8.9s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `6 passed (8.6s)`
+
+### Lesson notes for Opus
+- **Component vs. Page Object composition:** In large enterprise applications, repeating table parsing or date picker logic inside every page object causes maintenance sprawl. Decomposing shared UI widgets into component objects (e.g., `TableComponent`, `DatePickerComponent`) that are instantiated as properties of a page object (`this.table = new TableComponent(...)`) mirrors real-world design systems.
+- **Strict adherence to No-Assertions rule:** All page objects and components strictly hold locators and user actions. Assertions stay in the spec files, ensuring that when an assertion fails, the test failure report clearly identifies the business expectation that failed rather than a generic helper error.
+- **Authentication prerequisites on sub-pages:** Meridian Ops automatically redirects unauthenticated visits to `orders.html` and `fulfilment.html` back to `login.html`. Tests navigating to these pages must establish a session (via `loginPage.login(...)` or `storageState`).
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
