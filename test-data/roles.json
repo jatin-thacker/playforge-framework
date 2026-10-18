@@ -1,0 +1,20 @@
+{
+  "manager": {
+    "role": "manager",
+    "name": "Anita Rao",
+    "canAccessDashboard": true,
+    "canAccessOrders": true
+  },
+  "clerk": {
+    "role": "clerk",
+    "name": "Devraj Menon",
+    "canAccessDashboard": true,
+    "canAccessOrders": true
+  },
+  "invalid": {
+    "role": "invalid",
+    "name": "Invalid User",
+    "canAccessDashboard": false,
+    "canAccessOrders": false
+  }
+}

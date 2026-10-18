@@ -157,3 +157,36 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch21 — External Test Data (Excel, CSV, JSON) and Role Matrix
+
+### What arrived
+- `package.json`: Pinned `exceljs` exactly to `4.4.0` in `devDependencies`.
+- `src/lib/excel.js`: Helper module supporting `readExcel` and `writeExcel` using buffer streaming to ensure node/browser compatibility.
+- `src/lib/csv.js`: Dependency-free CSV parser and serializer (`readCsv`, `writeCsv`, `parseCsv`, `parseCsvLine`) correctly handling quoted commas and escaped quotes.
+- `test-data/users.xlsx`: Data-driven users table (manager, clerk, invalid user).
+- `test-data/orders.csv`: Sample orders dataset featuring quoted commas in fields.
+- `test-data/products.json`: Catalog products reference dataset.
+- `test-data/roles.json`: Role capabilities mapping (manager, clerk, invalid).
+- `tests/e2e/role-matrix.spec.js`: Parameterized role matrix test driven by `test-data/users.xlsx` asserting user identities, rejection of invalid credentials, and a live API state check.
+
+### Run
+- Repeat new role matrix spec (`npx playwright test tests/e2e/role-matrix.spec.js --repeat-each=3 --reporter=list`):
+  `12 passed (13.3s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `10 passed (15.8s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `10 passed (15.7s)`
+
+### Lesson notes for Opus
+- **ExcelJS ESM vs CJS bundling:** In modern Node ESM (`type: "module"`), importing `exceljs` directly triggers a circular dependency issue in its unbundled transitive dependencies (`traverse`/`is-generator-function`). Importing from `exceljs/dist/exceljs.min.js` and using `xlsx.load(buffer)` / `xlsx.writeBuffer()` with Node's native `fs/promises` completely avoids runtime file-system quirks while preserving clean async APIs.
+- **Data-driven test generation:** Top-level `await readExcel(...)` dynamically generates test cases at file evaluation time per [Playwright Parameterized Tests](https://playwright.dev/docs/test-parameterized). This gives each user role its own distinct entry in the test reporter rather than hiding multiple users inside a single loop.
+- **Handling quoted commas in CSV without dependencies:** A common interview and practical trap is splitting CSV lines with `.split(',')`. Any field like `"Tata Consultancy, Mumbai"` breaks. Writing a stateful character-by-character tokenizer (`inQuotes`) teaches students how CSV parsers genuinely operate.
+
+### Gaps in Meridian Ops
+- **Static mock state isolation:** Meridian Ops running under `?mock=static` serves read-only JSON snapshots. State changes made in the UI (e.g. logging in or submitting an order) are maintained in-memory/localStorage on the client and are not synchronized back to the server API. Querying `/api/session` via `page.request` returns `{ authenticated: false, note: "Auth lives in localStorage, not here." }`.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.

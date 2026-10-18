@@ -1,0 +1,4 @@
+id,customer,item,qty,total,status
+ORD-101,"Tata Consultancy, Mumbai",Industrial Sensor Hub,5,749.95,delivered
+ORD-102,"Infosys Technologies, Bangalore","Pressure Gauge, High-Precision",2,179.00,processing
+ORD-103,"Wipro Enterprises, Hyderabad",Thermal Imaging Camera,1,499.00,pending
