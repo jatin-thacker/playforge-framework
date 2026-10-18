@@ -15,7 +15,7 @@ export default defineConfig({
   workers: isCI ? 1 : undefined,
   reporter: isCI
     ? [['list'], ['html', { open: 'never' }]]
-    : [['html']],
+    : [['html', { open: 'never' }]],
   use: {
     baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',
