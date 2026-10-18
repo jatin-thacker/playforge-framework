@@ -412,6 +412,7 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 - `playwright.config.js`: Added projects for `firefox` (Desktop Firefox), `webkit` (Desktop Safari), and `Mobile Chrome` (Pixel 5), all inheriting dependency on `setup`.
 - `.github/workflows/playwright.yml`: Added 2-way matrix sharding configuration (`matrix: shardIndex: [1, 2], shardTotal: [2]`).
 - `Dockerfile`: Container definition based on `mcr.microsoft.com/playwright:v1.64.1-noble` with dependency installation and default test command.
+- Follow-up `fw ch28-ci` (Opus): every pipeline (GitHub, Jenkins, Azure, GitLab) now installs all browsers (`npx playwright install --with-deps`) instead of Chromium only, because this chapter's config runs Firefox, WebKit and Mobile Chrome projects too and a missing browser fails with `browserType.launch: Executable doesn't exist`. Added `.dockerignore` (so `COPY . .` does not copy a local `node_modules` or reports into the image), and `allure-report/` and `.env` to `.gitignore`.
 
 ### Run
 - Shard 1 of 2 (`npx playwright test --project=chromium --shard=1/2 --reporter=blob`):

@@ -6,3 +6,5 @@ blob-report/
 allure-results/
 playwright/.auth/
 config/.env.*.secret
+allure-report/
+.env

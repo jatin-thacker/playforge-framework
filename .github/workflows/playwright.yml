@@ -41,11 +41,11 @@ jobs:
 
       - name: Install Playwright browsers and dependencies
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
 
       - name: Install system dependencies only if browsers were cached
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        run: npx playwright install-deps
 
       - name: Run Playwright tests on shard
         run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}

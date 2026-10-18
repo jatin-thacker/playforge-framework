@@ -25,7 +25,7 @@ steps:
   - script: npm ci
     displayName: 'Install dependencies'
 
-  - script: npx playwright install --with-deps chromium
+  - script: npx playwright install --with-deps
     displayName: 'Install Playwright browsers and dependencies'
 
   - script: npx playwright test
