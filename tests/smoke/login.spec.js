@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../src/pages/LoginPage.js';
 
 test.describe('Smoke tests - Login', () => {
-  test('logs in as the clerk and asserts the current user is displayed in the header', async ({ page }) => {
+  test('logs in as the clerk and asserts the current user is displayed in the header @smoke', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
     await loginPage.login('clerk@meridian.test', 'Passw0rd!');

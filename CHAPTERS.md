@@ -29,3 +29,39 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch16 — Test Organization and Tag Filtering
+
+### What arrived
+- Folders organized by test type: `tests/smoke/`, `tests/ui/`, `tests/api/`, and `tests/e2e/`.
+- `tests/ui/catalog.spec.js`: UI test verifying catalog product grid and search input, tagged `@regression`.
+- `tests/api/health.spec.js`: API smoke and regression test verifying `/api/health` status and schema, tagged `@smoke @regression`.
+- `tests/e2e/orders-flow.spec.js`: End-to-end user journey test verifying clerk login and navigating to orders table, tagged `@regression`.
+- `tests/smoke/home.spec.js` and `tests/smoke/login.spec.js`: Updated test titles to include `@smoke` tags.
+- `package.json`: Added `test:smoke` (`playwright test --grep @smoke`) and `test:regression` (`playwright test --grep @regression`).
+
+### Run
+- Repeat new specs (`--repeat-each=3 --reporter=list`):
+  - `tests/ui/catalog.spec.js`: `3 passed (4.3s)`
+  - `tests/api/health.spec.js`: `3 passed (1.7s)`
+  - `tests/e2e/orders-flow.spec.js`: `3 passed (5.1s)`
+- Filter scripts:
+  - `npm run test:smoke`: `3 passed (3.7s)`
+  - `npm run test:regression`: `3 passed (4.5s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `5 passed (7.4s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `5 passed (7.5s)`
+
+### Lesson notes for Opus
+- **Tag conventions in Playwright:** Playwright uses regex grep matching on test titles rather than separate config files for suites. Placing `@smoke` and `@regression` directly in `test('title @tag', ...)` allows filtering via `--grep @smoke` or `--grep-invert @regression` per [Playwright Test Annotations & Tags](https://playwright.dev/docs/test-annotations#tag-tests).
+- **Test categorization hierarchy:** Separating `tests/smoke`, `tests/ui`, `tests/api`, and `tests/e2e` establishes a clean test pyramid. Smoke tests run in seconds on every push; regression runs cover broader UI and E2E journeys.
+- **Request context for API tests:** In `tests/api/health.spec.js`, using `{ request }` fixture avoids launching a browser entirely, running in under 200ms.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
