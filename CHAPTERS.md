@@ -65,3 +65,35 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch18 — Environment Selection and Validation
+
+### What arrived
+- `config/environments.js`: Updated to select `config/.env.<env>` via `ENV=local|dev|qa|staging|prod` (defaults to `prod`), enforces allowed values, and validates required keys (`BASE_URL`) failing fast with a list of all missing keys.
+- `config/.env.example`: Template for environment files with guidance.
+- `config/.env.dev`, `config/.env.qa`, `config/.env.staging`: Environment configurations pointing to Meridian Ops (`https://practice.learnplayforge.com`).
+
+### Run
+- Validation check (`ENV=invalid`):
+  `Error: Invalid ENV "invalid". Allowed values: local, dev, qa, staging, prod`
+- Dev run (`ENV=dev npx playwright test tests/api/health.spec.js --reporter=list`):
+  `1 passed (1.1s)`
+- QA run (`ENV=qa npx playwright test tests/api/health.spec.js --reporter=list`):
+  `1 passed (1.0s)`
+- Full suite run 1 (`CI=1 ENV=prod npx playwright test --reporter=list`):
+  `5 passed (7.3s)`
+- Full suite run 2 (`CI=1 ENV=prod npx playwright test --reporter=list`):
+  `5 passed (7.1s)`
+
+### Lesson notes for Opus
+- **Dotenv override semantics:** Using `dotenv.config({ path, override: false })` ensures that variables provided via CI/CD runners or the terminal shell take precedence over `.env` files on disk.
+- **Fail-fast validation:** Checking all required keys in one pass and displaying `[KEY1, KEY2]` prevents the frustrating cycle of discovering missing variables one run at a time in CI.
+- **Single practice host across environments:** In the PlayForge curriculum, all remote environments (`dev`, `qa`, `staging`, `prod`) intentionally point to `https://practice.learnplayforge.com`. This simulates an enterprise tiering model while ensuring student runs remain completely reproducible against the pinned mock platform.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
