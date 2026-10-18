@@ -29,7 +29,12 @@ export class FulfilmentPage {
     this.courierInput = page.getByTestId('courier-input');
     this.step2NextButton = page.getByTestId('step-2-next');
 
-    // Step 3 - Packing
+    // Step 3 - Packing & Documents
+    this.invoiceFileInput = page.getByTestId('invoice-file');
+    this.invoiceFileName = page.getByTestId('invoice-file-name');
+    this.hiddenPhotoInput = page.getByTestId('hidden-photo-input');
+    this.photoFileName = page.getByTestId('photo-file-name');
+    this.choosePhotoButton = page.getByTestId('choose-photo');
     this.step3NextButton = page.getByTestId('step-3-next');
 
     // Step 4 - Review & Submit
