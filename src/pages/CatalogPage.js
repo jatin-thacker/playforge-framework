@@ -46,7 +46,7 @@ export class CatalogPage {
    * @param {number} index
    */
   async addProductToCart(index = 0) {
-    const card = this.productGrid.locator('.product-card').nth(index);
+    const card = this.productGrid.getByRole('article').nth(index);
     const addButton = card.getByRole('button', { name: /Add to cart|Add/i });
     await addButton.click();
   }
