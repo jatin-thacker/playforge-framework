@@ -171,22 +171,26 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 - `test-data/products.json`: Catalog products reference dataset.
 - `test-data/roles.json`: Role capabilities mapping (manager, clerk, invalid).
 - `tests/e2e/role-matrix.spec.js`: Parameterized role matrix test driven by `test-data/users.xlsx` asserting user identities, rejection of invalid credentials, and a live API state check.
+- `tests/e2e/live-state.spec.js`: End-to-end live state mutation test exercising order creation through the UI wizard, verification via `/api/live/orders`, UI deletion, and API 404 confirmation in isolated `?mock=live&run=<id>` namespace.
 
 ### Run
 - Repeat new role matrix spec (`npx playwright test tests/e2e/role-matrix.spec.js --repeat-each=3 --reporter=list`):
   `12 passed (13.3s)`
+- Live state spec against local server (`ENV=local npx playwright test tests/e2e/live-state.spec.js --reporter=list`):
+  `4 passed across chromium, firefox, webkit, and Mobile Chrome against http://localhost:4321`
 - Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
   `10 passed (15.8s)`
 - Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
   `10 passed (15.7s)`
 
 ### Lesson notes for Opus
+- **State isolation via run id in shared environments:** When multiple students run exercises simultaneously or when CI executes parallel test workers, shared state mutations collide unless isolated. Parameterizing live requests with a unique run id (`?mock=live&run=${runId}`) scopes all database inserts, mutations, and deletions into an isolated partition. This allows concurrent end-to-end write tests without cross-test pollution or race conditions.
 - **ExcelJS ESM vs CJS bundling:** In modern Node ESM (`type: "module"`), importing `exceljs` directly triggers a circular dependency issue in its unbundled transitive dependencies (`traverse`/`is-generator-function`). Importing from `exceljs/dist/exceljs.min.js` and using `xlsx.load(buffer)` / `xlsx.writeBuffer()` with Node's native `fs/promises` completely avoids runtime file-system quirks while preserving clean async APIs.
 - **Data-driven test generation:** Top-level `await readExcel(...)` dynamically generates test cases at file evaluation time per [Playwright Parameterized Tests](https://playwright.dev/docs/test-parameterized). This gives each user role its own distinct entry in the test reporter rather than hiding multiple users inside a single loop.
 - **Handling quoted commas in CSV without dependencies:** A common interview and practical trap is splitting CSV lines with `.split(',')`. Any field like `"Tata Consultancy, Mumbai"` breaks. Writing a stateful character-by-character tokenizer (`inQuotes`) teaches students how CSV parsers genuinely operate.
 
 ### Gaps in Meridian Ops
-- **Static mock state isolation:** Meridian Ops running under `?mock=static` serves read-only JSON snapshots. State changes made in the UI (e.g. logging in or submitting an order) are maintained in-memory/localStorage on the client and are not synchronized back to the server API. Querying `/api/session` via `page.request` returns `{ authenticated: false, note: "Auth lives in localStorage, not here." }`.
+- **Live state persistence:** Live mode (`?mock=live&run=<id>`) backed by Supabase is implemented for `/api/live/orders`. Tested against local server (`ENV=local`, `BASE_URL=http://localhost:4321`) pending production deployment. Static mock mode (`?mock=static`) remains read-only snapshot.
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
