@@ -1,6 +1,8 @@
 # PlayForge Framework Starter
 
-Starter repository for the PlayForge test automation course, reflecting the project state at the end of Chapter 5 ("Your First Playwright Test").
+The test automation framework you build in the PlayForge Playwright course, against the Meridian Ops practice app (https://practice.learnplayforge.com).
+
+`main` is the finished framework. Each chapter that changes it has tags: `chNN-start` and `chNN-end` hold the project as it was before and after that chapter (for example `git checkout ch05-end` for the starting version, `ch21-end` after the test-data chapter). Compare your own copy with the tag for the chapter you are on.
 
 Built on Playwright and Node.js with native ECMAScript Modules (ESM).
 
@@ -15,7 +17,7 @@ Follow these steps to clone, set up, and execute the smoke test suite:
 
 ```bash
 # 1. Clone the repository
-git clone <repo-url>
+git clone https://github.com/jatin-thacker/playforge-framework.git
 cd playforge-framework
 
 # 2. Install pinned dependencies
