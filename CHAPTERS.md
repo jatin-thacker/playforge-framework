@@ -404,6 +404,40 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 ### Unverified
 - Live execution on remote CI runners (GitHub Actions, GitLab CI, Jenkins, Azure DevOps) was verified via static schema validation (`js-yaml`) and local headless `CI=1` executions rather than live remote dispatch.
 
+---
+
+## ch28 — Cross-Browser Projects, Sharding, and Containerization
+
+### What arrived
+- `playwright.config.js`: Added projects for `firefox` (Desktop Firefox), `webkit` (Desktop Safari), and `Mobile Chrome` (Pixel 5), all inheriting dependency on `setup`.
+- `.github/workflows/playwright.yml`: Added 2-way matrix sharding configuration (`matrix: shardIndex: [1, 2], shardTotal: [2]`).
+- `Dockerfile`: Container definition based on `mcr.microsoft.com/playwright:v1.64.1-noble` with dependency installation and default test command.
+
+### Run
+- Shard 1 of 2 (`npx playwright test --project=chromium --shard=1/2 --reporter=blob`):
+  `14 passed (10.9s)`
+- Shard 2 of 2 (`npx playwright test --project=chromium --shard=2/2 --reporter=blob`):
+  `13 passed (9.3s)`
+- Merge reports (`npx playwright merge-reports blob-report`):
+  `13 passed (9.3s)`
+- Cross-browser repeat run (`npx playwright test tests/smoke/home.spec.js --repeat-each=3 --reporter=list`):
+  `14 passed (14.6s)`
+- Full suite run 1 (`CI=1 npx playwright test --project=chromium --reporter=list`):
+  `25 passed (33.7s)`
+- Full suite run 2 (`CI=1 npx playwright test --project=chromium --reporter=list`):
+  `25 passed (33.8s)`
+
+### Lesson notes for Opus
+- **Cross-browser and mobile device emulation:** Playwright's device registry (`devices['Pixel 5']`, `devices['Desktop Safari']`) emulates user agents, viewports, touch capabilities, and device pixel ratios out of the box per [Playwright Emulation](https://playwright.dev/docs/emulation).
+- **Blob reporter and report merging across shards:** When running large test suites across parallel CI jobs using `--shard=x/y`, each worker produces an isolated `.zip` blob report using `--reporter=blob`. `npx playwright merge-reports` then combines the individual shard blobs into a unified HTML or JUnit report per [Playwright Sharding](https://playwright.dev/docs/test-sharding).
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- Docker container execution (`docker build`, `docker run`) was marked Unverified because the host environment does not have the Docker daemon installed (`docker : The term 'docker' is not recognized`).
+
+
 
 
 

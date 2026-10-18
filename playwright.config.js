@@ -34,5 +34,23 @@ export default defineConfig({
       dependencies: ['setup'],
       testIgnore: /.*\.setup\.js/,
     },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup'],
+      testIgnore: /.*\.setup\.js/,
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['setup'],
+      testIgnore: /.*\.setup\.js/,
+    },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+      dependencies: ['setup'],
+      testIgnore: /.*\.setup\.js/,
+    },
   ],
 });
