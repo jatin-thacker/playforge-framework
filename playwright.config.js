@@ -13,9 +13,12 @@ export default defineConfig({
   fullyParallel: true,
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
-  reporter: isCI
-    ? [['list'], ['html', { open: 'never' }]]
-    : [['html', { open: 'never' }]],
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    ['junit', { outputFile: 'results/junit.xml' }],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
+  ],
   use: {
     baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',

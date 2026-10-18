@@ -338,4 +338,41 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 ### Unverified
 - None. All specs passed against live Meridian Ops.
 
+---
+
+## ch26 — Enterprise Test Reporting: List, HTML, JUnit, and Allure
+
+### What arrived
+- `package.json`: Added `allure-playwright` pinned exactly to `3.13.0` in `devDependencies`.
+- `package-lock.json`: Updated dependency lockfile for `allure-playwright`.
+- `playwright.config.js`: Configured comprehensive reporting array:
+  - `list` (terminal logs)
+  - `html` with `{ open: 'never' }` (local and artifact debugging)
+  - `junit` writing to `results/junit.xml` (CI pipeline test result ingestion)
+  - `allure-playwright` writing to `allure-results/` (enterprise test dashboard)
+
+### Run
+- Verified all three reporting outputs exist on disk:
+  - `playwright-report/index.html` (True)
+  - `results/junit.xml` (True)
+  - `allure-results/` (True)
+- Smoke repeat run (`npx playwright test tests/smoke/home.spec.js --repeat-each=3 --reporter=list`):
+  `5 passed (5.1s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `25 passed (34.5s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `25 passed (33.6s)`
+
+### Lesson notes for Opus
+- **Multi-reporter configuration:** Playwright supports defining multiple concurrent reporters in an array per [Playwright Reporters](https://playwright.dev/docs/test-reporters). This enables simultaneous terminal logging (`list`), interactive local debugging (`html`), CI test result ingestion (`junit`), and enterprise test management dashboards (`allure-playwright`).
+- **Preventing server hangs with `{ open: 'never' }`:** When configuring the HTML reporter, omitting `{ open: 'never' }` causes failed local or CI runs to spin up an interactive web server waiting for user input, causing terminal hangs in headless automation pipelines.
+- **JUnit XML integration for CI:** Modern CI systems (GitHub Actions, GitLab CI, Jenkins, Azure DevOps) parse standard JUnit XML reports directly to populate test tabs, pass/fail trends, and PR annotations without requiring custom tooling.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.
+
+
 
