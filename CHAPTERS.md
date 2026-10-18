@@ -307,6 +307,8 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 ### Run
 - Repeat new specs (`npx playwright test tests/ui/auth-reuse.spec.js tests/ui/frames.spec.js tests/ui/file-upload.spec.js tests/ui/tabs-downloads.spec.js --repeat-each=3 --reporter=list`):
   `23 passed (13.1s)`
+- Real events spec against local server (`ENV=local npx playwright test tests/ui/tabs-downloads.spec.js --reporter=list`):
+  `8 passed across chromium, firefox, webkit, and Mobile Chrome against http://localhost:4321`
 - Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
   `25 passed (33.8s)`
 - Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
@@ -316,10 +318,22 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 - **Auth setup project dependency chain:** Configuring an authentication setup project that depends on `testMatch: /.*\.setup\.js/` and saving `storageState` per [Playwright Authentication](https://playwright.dev/docs/auth) saves massive execution time across test suites by executing login only once per role rather than per test.
 - **`frameLocator` chaining for nested iframes:** Playwright provides `page.frameLocator('...').frameLocator('...')` which allows direct querying of elements inside deeply nested frames without manual context switching or frame handle memory leaks per [Playwright Frames](https://playwright.dev/docs/frames).
 - **`setInputFiles` bypasses visibility restrictions:** Stylized web applications frequently hide raw `<input type="file">` elements using `display: none` or zero opacity while presenting a custom styled proxy button. Standard user actions like `.click()` or `.fill()` throw actionability errors on hidden inputs, but `locator.setInputFiles()` deliberately operates at the browser driver level and does not require visibility per [Playwright Upload Files](https://playwright.dev/docs/input#upload-files).
-- **The promise-first pattern for events:** When waiting for asynchronous browser events like new tabs (`context.waitForEvent('page')`) or file downloads (`page.waitForEvent('download')`), the event listener promise must ALWAYS be initialized *before* triggering the action that causes the event (`const [page] = await Promise.all([context.waitForEvent('page'), action()])`). Calling `waitForEvent` after the click creates a race condition where fast events are missed.
+- **The promise-first variable pattern for events:** When waiting for asynchronous browser events like new tabs (`context.waitForEvent('page')`) or file downloads (`page.waitForEvent('download')`), the event listener promise must ALWAYS be initialized as a variable *before* triggering the action:
+  ```js
+  const pagePromise = context.waitForEvent('page');
+  await page.getByRole('link', { name: 'Track ORD-4100' }).click();
+  const newTab = await pagePromise;
+  ```
+  and
+  ```js
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download CSV' }).click();
+  const download = await downloadPromise;
+  ```
+  Using `const promise = waitForEvent(...); await click; const result = await promise;` matches the official Playwright documentation pattern rather than `Promise.all`. Calling `waitForEvent` after the click creates a race condition where fast events are missed.
 
 ### Gaps in Meridian Ops
-- **Lack of native download and popup triggers:** Meridian Ops currently lacks any anchor with `target="_blank"` or buttons that invoke `window.open()`, as well as native download endpoints (e.g. the "Export order book" modal in `orders.html` updates inline status text to "Export started." but does not produce a `Content-Disposition: attachment` or file download event). The tests demonstrate the standard Playwright promise-first patterns via evaluated actions and routed downloads.
+- **Real event targets added to Meridian Ops:** `exports.html` now provides a real `target="_blank"` link to `tracking.html?id=ORD-4100` and a native CSV download button emitting a synthetic download. Both previous fakes (`window.open` evaluation and routed download mock) have been removed. Tested against local server (`ENV=local`, `BASE_URL=http://localhost:4321`) pending production deployment of `exports.html` and `tracking.html`. All other framework specs continue running against production (`ENV=prod`).
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.

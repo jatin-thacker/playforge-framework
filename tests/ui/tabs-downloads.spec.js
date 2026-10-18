@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { test, expect } from '../../src/fixtures/index.js';
 
 test.describe('Advanced Interactions - Popups, Tabs, and Downloads', () => {
@@ -5,21 +6,20 @@ test.describe('Advanced Interactions - Popups, Tabs, and Downloads', () => {
     context,
     page,
   }) => {
-    await page.goto('/index.html?mock=static&seed=42');
+    await page.goto('/exports.html?mock=static&seed=42');
 
-    // 1. Listen for new tab event before triggering the action (promise-first pattern)
+    // 1. Listen for new tab event before triggering the action (promise-first pattern with variable)
     const pagePromise = context.waitForEvent('page');
 
-    // 2. Trigger new tab action (Meridian Ops currently lacks native target="_blank" links)
-    await page.evaluate(() => {
-      window.open('/catalog.html?mock=static&seed=42', '_blank');
-    });
+    // 2. Click real target="_blank" link
+    await page.getByRole('link', { name: 'Track ORD-4100' }).click();
 
     // 3. Await the new Page object and assert its loaded content
     const newTab = await pagePromise;
     await newTab.waitForLoadState();
-    await expect(newTab).toHaveTitle(/Catalog - Meridian Ops/);
-    await expect(newTab.getByRole('heading', { name: 'Catalog', exact: true })).toBeVisible();
+    await expect(newTab).toHaveTitle(/Shipment Tracking - Meridian Ops/);
+    await expect(newTab.getByRole('heading', { name: 'Shipment ORD-4100', exact: true })).toBeVisible();
+    await expect(newTab.getByTestId('tracking-status')).toBeVisible();
 
     // 4. Clean up opened tab
     await newTab.close();
@@ -28,35 +28,22 @@ test.describe('Advanced Interactions - Popups, Tabs, and Downloads', () => {
   test('handles file download via page.waitForEvent with promise-first pattern @regression', async ({
     page,
   }) => {
-    await page.goto('/orders.html?mock=static&seed=42');
+    await page.goto('/exports.html?mock=static&seed=42');
 
-    // 1. Intercept export endpoint to serve a downloadable attachment
-    await page.route('**/api/export/orders.csv', (route) => {
-      route.fulfill({
-        status: 200,
-        contentType: 'text/csv',
-        headers: {
-          'Content-Disposition': 'attachment; filename="orders-export.csv"',
-        },
-        body: 'id,customer,total\nORD-4100,Meera Pillai,19470\nORD-4101,Kabir Chawla,1380\n',
-      });
-    });
-
-    // 2. Set up download listener before triggering the download event
+    // 1. Listen for download event before triggering the action (promise-first pattern with variable)
     const downloadPromise = page.waitForEvent('download');
 
-    // 3. Trigger download action
-    await page.evaluate(() => {
-      const link = document.createElement('a');
-      link.href = '/api/export/orders.csv';
-      link.download = 'orders-export.csv';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    });
+    // 2. Trigger real download button
+    await page.getByRole('button', { name: 'Download CSV' }).click();
 
-    // 4. Await download completion and assert file properties
+    // 3. Await download completion and assert file properties
     const download = await downloadPromise;
-    expect(download.suggestedFilename()).toBe('orders-export.csv');
+    expect(download.suggestedFilename()).toBe('meridian-orders.csv');
+
+    // Verify first line of the saved file
+    const downloadPath = await download.path();
+    const content = fs.readFileSync(downloadPath, 'utf8');
+    const firstLine = content.split('\n')[0].trim();
+    expect(firstLine).toBe('id,customer,city,status,sku,item,qty,totalInr,placedAt');
   });
 });
