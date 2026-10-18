@@ -97,3 +97,29 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 
 ### Unverified
 - None. All specs passed against live Meridian Ops.
+
+---
+
+## ch19 — Custom Fixtures Architecture
+
+### What arrived
+- `src/fixtures/index.js`: Extends Playwright's base `test` with custom page-object fixtures (including `loginPage`) and re-exports `test` and `expect`.
+- All specs (`tests/smoke/home.spec.js`, `tests/smoke/login.spec.js`, `tests/ui/catalog.spec.js`, `tests/api/health.spec.js`, `tests/e2e/orders-flow.spec.js`): Updated to import `{ test, expect }` exclusively from `src/fixtures/index.js`, eliminating direct imports from `@playwright/test`.
+
+### Run
+- Repeat refactored fixture spec (`npx playwright test tests/smoke/login.spec.js --repeat-each=3 --reporter=list`):
+  `3 passed (3.6s)`
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `5 passed (7.0s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `5 passed (6.9s)`
+
+### Lesson notes for Opus
+- **Single import rule:** Requiring every spec to import `test` and `expect` from `src/fixtures/index.js` establishes an architectural foundation where any new fixture, setup hook, or custom matcher is instantly available to every test in the repository without editing test headers.
+- **Fixture lifecycle vs. `beforeEach`:** Traditional test frameworks rely on `beforeEach` hooks and shared mutable variables (`let loginPage; beforeEach(...)`). Playwright fixtures are lazily instantiated on demand per test, clean up automatically after `await use(...)`, and run in parallel workers safely without state contamination per [Playwright Test Fixtures](https://playwright.dev/docs/test-fixtures).
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- None. All specs passed against live Meridian Ops.

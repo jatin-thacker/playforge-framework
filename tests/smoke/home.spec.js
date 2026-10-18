@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/fixtures/index.js';
 
 test.describe('Smoke tests - Home page', () => {
   test('opens the home page and asserts the operations dashboard heading is visible @smoke', async ({ page }) => {

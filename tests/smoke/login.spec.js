@@ -1,9 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../../src/pages/LoginPage.js';
+import { test, expect } from '../../src/fixtures/index.js';
 
 test.describe('Smoke tests - Login', () => {
-  test('logs in as the clerk and asserts the current user is displayed in the header @smoke', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+  test('logs in as the clerk and asserts the current user is displayed in the header @smoke', async ({ loginPage }) => {
     await loginPage.goto();
     await loginPage.login('clerk@meridian.test', 'Passw0rd!');
 

@@ -1,9 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../../src/pages/LoginPage.js';
+import { test, expect } from '../../src/fixtures/index.js';
 
 test.describe('E2E tests - Orders flow', () => {
-  test('logs in as clerk and views orders management table @regression', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+  test('logs in as clerk and views orders management table @regression', async ({ loginPage, page }) => {
     await loginPage.goto();
     await loginPage.login('clerk@meridian.test', 'Passw0rd!');
     await expect(loginPage.currentUser).toBeVisible();

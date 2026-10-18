@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/fixtures/index.js';
 
 test.describe('UI tests - Product Catalog', () => {
   test('displays product grid and category filter @regression', async ({ page }) => {
