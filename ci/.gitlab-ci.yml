@@ -1,0 +1,32 @@
+stages:
+  - test
+
+variables:
+  CI: "true"
+  BASE_URL: "https://practice.learnplayforge.com"
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.cache/ms-playwright"
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm
+    - .cache/ms-playwright
+
+playwright-tests:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.64.1-noble
+  script:
+    - npm ci
+    - npx playwright install --with-deps chromium
+    - npx playwright test
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+      - results/junit.xml
+    reports:
+      junit: results/junit.xml
+    expire_in: 30 days

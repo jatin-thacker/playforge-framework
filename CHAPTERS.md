@@ -374,5 +374,36 @@ Append-only record of how `playforge-framework/` grows across the course, with v
 ### Unverified
 - None. All specs passed against live Meridian Ops.
 
+---
+
+## ch27 — Continuous Integration Pipelines and Cross-Platform Parity
+
+### What arrived
+- `.github/workflows/playwright.yml`: Production GitHub Actions workflow featuring Node 20, `npm ci`, Playwright browser caching keyed to package-lock version, conditional system dependencies installation, and upload of both HTML and JUnit test reports.
+- `ci/Jenkinsfile`: Declarative Jenkins pipeline running inside `mcr.microsoft.com/playwright:v1.64.1-noble` with dependency installation, browser installs, test execution, JUnit parsing, and report archiving.
+- `ci/.gitlab-ci.yml`: GitLab CI configuration with caching for npm and Playwright browsers, execution in Playwright Docker image, JUnit report publishing, and HTML artifact archiving.
+- `ci/azure-pipelines.yml`: Azure DevOps pipeline with Node 20, browser caching (`Cache@2`), test execution, `PublishTestResults@2` for JUnit, and `PublishBuildArtifacts@1` for HTML reports.
+
+### Run
+- Validated all YAML pipelines using `npx --yes js-yaml`:
+  - `playforge-framework/.github/workflows/playwright.yml`: valid (exit 0)
+  - `playforge-framework/ci/.gitlab-ci.yml`: valid (exit 0)
+  - `playforge-framework/ci/azure-pipelines.yml`: valid (exit 0)
+- Full suite run 1 (`CI=1 npx playwright test --reporter=list`):
+  `25 passed (33.9s)`
+- Full suite run 2 (`CI=1 npx playwright test --reporter=list`):
+  `25 passed (33.7s)`
+
+### Lesson notes for Opus
+- **Browser binary caching strategy in CI:** Downloading browser binaries on every CI run adds 2–4 minutes of latency and risks network throttling. Caching `~/.cache/ms-playwright` keyed by Playwright version (`actions/cache@v4`) and selectively running `npx playwright install-deps` when cached avoids redundant browser downloads while ensuring OS-level shared libraries are present.
+- **Cross-platform CI parity:** High-performing engineering teams maintain pipeline definitions across platforms (GitHub Actions, GitLab CI, Azure DevOps, Jenkins) with identical phases: checkout -> setup runtime -> cache dependencies -> install browsers -> execute suite with CI env vars -> publish JUnit XML and HTML artifacts.
+
+### Gaps in Meridian Ops
+- None in this stage.
+
+### Unverified
+- Live execution on remote CI runners (GitHub Actions, GitLab CI, Jenkins, Azure DevOps) was verified via static schema validation (`js-yaml`) and local headless `CI=1` executions rather than live remote dispatch.
+
+
 
 
